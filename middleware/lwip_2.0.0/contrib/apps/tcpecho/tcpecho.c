@@ -101,9 +101,7 @@ tcpecho_init(void)
 void
 tcpclient_init(void)
 {
-	 ip_addr_t ip_addr_broadcast = IPADDR4_INIT(IPADDR_BROADCAST);
-
-     static struct netconn *pConnection, *newpConnection;
+     static struct netconn *pConnection;
      static ip_addr_t ip_client;
      static ip_addr_t ip_server;
      static u16_t port_server = 12346;
@@ -147,6 +145,7 @@ tcpclient_init(void)
 		 // Wait two seconds
 		 vTaskDelay(2000/portTICK_PERIOD_MS);
 		 netconn_disconnect(pConnection);
+		 printf("Connection is closed!\r\n");
      }
 	 // Wait a second
 	 vTaskDelay(1000/portTICK_PERIOD_MS);
