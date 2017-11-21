@@ -102,8 +102,7 @@ void
 tcpclient_init(void)
 {
 	 ip_addr_t ip_addr_broadcast = IPADDR4_INIT(IPADDR_BROADCAST);
-    //if (fsl_netif0 == DHCP_BOUND) {
-     // Send out some UDP data
+
      static struct netconn* pConnection;
      static ip_addr_t ip_server;
      IP4_ADDR(&ip_server, 192,168,0,42);
