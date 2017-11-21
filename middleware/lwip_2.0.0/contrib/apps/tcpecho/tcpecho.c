@@ -103,36 +103,53 @@ tcpclient_init(void)
 {
 	 ip_addr_t ip_addr_broadcast = IPADDR4_INIT(IPADDR_BROADCAST);
 
-     static struct netconn* pConnection;
+     static struct netconn *pConnection, *newpConnection;
+     static ip_addr_t ip_client;
      static ip_addr_t ip_server;
-     IP4_ADDR(&ip_server, 192,168,0,42);
+     static u16_t port_server = 12346;
      err_t err;
+
+     IP4_ADDR(&ip_server, 192,168,0,42);
+     IP4_ADDR(&ip_client, 192,168,0,102);
+
      char msg[] = "This is my message";
+     char myTrainTestMsg1[] = "testMessage1\r";
+     char myTrainTestMsg2[] = "testMessage2\r";
+
      // Create UDP connection
      pConnection = netconn_new(NETCONN_TCP);
-     // Connect to local port
-     err = netconn_bind(pConnection, IP_ADDR_ANY, 12345);
-     printf("%s : Bound to IP_ADDR_ANY port 12345 (%s)\n", __FUNCTION__, lwip_strerr(err));
 
-     err = netconn_connect(pConnection, &ip_server, 12346 );
-     printf("%s : Connected to IP_ADDR_BROADCAST port 12346 (%s)\n", __FUNCTION__, lwip_strerr(err));
+     // Connect to local port
+     err = netconn_bind(pConnection, &ip_client, 0);
+     printf("%s : Bound to IP_ADDR_ANY (%s)\n", __FUNCTION__, lwip_strerr(err));
+
+     /* Tell connection to go into listening mode. */
+     //netconn_listen(pConnection);
+
+     /* Grab new connection. */
+     //err = netconn_accept(pConnection, &newpConnection);
+
+     err = netconn_connect(pConnection, &ip_server, port_server );
+     printf("%s : Connected to server port %d (%s)\n", __FUNCTION__, port_server, lwip_strerr(err));
 
      if(err != ERR_OK){
-
+    	 //To be done
      }
      else{
-		 struct netbuf* buf = netbuf_new();
-		 void* data = netbuf_alloc(buf, sizeof(msg));
-
-		 memcpy (data, msg, sizeof (msg));
-		 err = netconn_send(pConnection, buf);
-		 printf("%s : Sending to IP_ADDR_BROADCAST port 12346 (%s)\n", __FUNCTION__, lwip_strerr(err));
-
-		 netbuf_delete(buf); // De-allocate packet buffer
+    	 struct netbuf *buf;
+		 //err = netconn_write(pConnection, (char*)msg, sizeof(msg), NETCONN_COPY);
+		 err = netconn_write(pConnection, (char*)myTrainTestMsg1, sizeof(myTrainTestMsg1), NETCONN_COPY);
+		 //err = netconn_write(pConnection, (char*)myTrainTestMsg2, sizeof(myTrainTestMsg2), NETCONN_COPY);
+		 printf("%s : Sending to server port %d (%s)\n", __FUNCTION__, port_server, lwip_strerr(err));
+		 while ((err = netconn_recv(pConnection, &buf)) == ERR_OK) {
+		         printf("Received %s\r\n", buf->p->payload);
+		 }
+		 // Wait two seconds
+		 vTaskDelay(2000/portTICK_PERIOD_MS);
+		 netconn_disconnect(pConnection);
      }
 	 // Wait a second
 	 vTaskDelay(1000/portTICK_PERIOD_MS);
-
 }
 /*-----------------------------------------------------------------------------------*/
 

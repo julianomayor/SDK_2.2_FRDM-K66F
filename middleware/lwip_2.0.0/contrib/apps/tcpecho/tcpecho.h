@@ -51,7 +51,7 @@
 #define configGW_ADDR0 192
 #define configGW_ADDR1 168
 #define configGW_ADDR2 0
-#define configGW_ADDR3 42
+#define configGW_ADDR3 1
 
 void tcpecho_init(void);
 void tcpclient_init(void);
